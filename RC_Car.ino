@@ -1,6 +1,7 @@
-// RC Car 
+// RC Car controlled via an IR remote. It automatically avoids obstacles 
 // For Physical Interface Design course Medialogy BSc. semester 4
 // By Christian Tsalidis
+
 #include <Servo.h>
 #include <IRremote.h>
 #include "pins_arduino.h"
@@ -35,6 +36,7 @@ const int LED_PIN = 6;
 
 bool checkLeft = true;
 bool isAvoidingObstacles = false;
+bool ledPinIsOn = false;
 
 void setup() {
   Serial.begin(9600); // to print in the serial monitor
@@ -96,6 +98,9 @@ void CheckIRData() {
       case 16582903: RotateLight(1); break; // rotate light to the left
       case 16599223: RotateLight(3); // rotate light to the right
       case 16593103: checkLeft = !checkLeft; break; // button 0 in IR remote --> ChangeObstacleAvoidingDirection
+      case 16603303: {   ledPinIsOn = !ledPinIsOn; // button 9 in IR remote --> turn on / off led light
+                        if(ledPinIsOn) digitalWrite(LED_PIN, HIGH);
+                        else digitalWrite(LED_PIN, LOW); };
       default: break;
     }
     irrecv.resume(); // Continue receiving
@@ -186,6 +191,7 @@ void AvoidObstacle() {
 
 // the led light is attached on top of the servo motor, pointing straight to where the servo motor is pointing
 void RotateLight(int val) {
+  ledPinIsOn = true;
   digitalWrite(LED_PIN, HIGH);
   // the servoAngle is changed depending if the user clicks on number 1 or 3 (left and right respectively)
   // control the servo motor
